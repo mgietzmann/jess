@@ -61,8 +61,8 @@ def removeComments(file_content):
     # and make our edits
     for i in range(-1, -len(matches) - 1, -1):
         match = matches[i]
-        start = matche.start()
-        end = matche.end() # note this is the start of the string after the
+        start = match.start()
+        end = match.end() # note this is the start of the string after the
                             # match, given how match.end() works
         file_content = file_content[:start] + file_content[end:]
     return file_content
