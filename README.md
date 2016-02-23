@@ -22,3 +22,6 @@ then use these two components to extract data from the entire page. Once the use
 both of these parts to jess' Action class, as well as the page to be scraped, it only takes a 
 single method call for jess to have the page scraped and in key value form.
 
+The Details
+
+Open guide/guide.html in your favorite browser to get a more detailed look at jess.
