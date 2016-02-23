@@ -1,0 +1,26 @@
+/* this grabs a key and value for side bar items
+it assigns the key to be the text in bold, and the value to be the rest */
+#powerbox p {
+  key: bold;
+  val: unmarkedtext;
+}
+
+/* This grabs the powergrid's labels as keys */
+.powergrid .p-left {
+  key: text;
+}
+
+/*This grabs the number of blocks in a powergrid column as a value,
+and assigns the label to the left as a key
+*/
+.powergrid .ratingvalue {
+  key: get(.powergrid .p-left<);
+  val: blocks;
+}
+
+/* This grabs the paragraphs in the biobody and assigns they key to be the
+constant string 'Content' */
+#biobody p {
+  key: content;
+  val: text;
+}
