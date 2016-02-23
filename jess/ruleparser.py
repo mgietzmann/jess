@@ -56,7 +56,10 @@ line_ex = re.compile('[^;\n]{1,};') # this provides a match to a single code lin
 
 def removeComments(file_content):
     # this will go through and make matches to comment_re and remove these
-    matches = re.findall(comment_re, file_content)
+    match_iterator = re.finditer(comment_re, file_content)
+    matches = []
+    for match in match_iterator:
+        matches.append(match)
     # now we go backwards through the list of matches
     # and make our edits
     for i in range(-1, -len(matches) - 1, -1):
