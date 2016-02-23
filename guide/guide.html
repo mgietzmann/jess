@@ -1,0 +1,238 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style/guide.css" />
+  <title>A Guide to jess</title>
+</head>
+<body>
+  <div class="section">
+    <h1>Overview</h1>
+    <h3><code>jess</code>: In a Few Words</h3>
+    <p>
+      All scrapers have two layers, the layer which extracts data from individual
+      pages, and the layer which controls moving through many pages. <code>jess</code> is concerned
+      with the former. <code>jess</code> uses the fact that many web pages are structured around the css used to style
+      them to create a web page scraping class class which is incredibly easy to configure and
+      extremely flexible.
+    </p>
+    <h3>How it Works: Big Picture</h3>
+    <p>
+      At a high level, the process <code>jess</code> uses to scrape a page is the following:
+      <code>jess</code> consumes a configuration file, which tells <code>jess</code> how to construct keys and values
+      from the html page. The configuration file is composed of rules attached to CSS selectors.
+      For each selector,
+      <code>jess</code> grabs all of the tags satisfying to that selector and applies the corresponding rules
+      to each tag to create a single key and, optionally, a value. These keys and values
+      are stored in a dictionary composed of those keys and, for each key, a list of the values
+      assigned
+      to that key.
+    </p>
+    <p>
+      To use <code>jess</code> the user creates the aforementioned configuration file and
+      the functions that will be used to extract data from individual tags. <code>jess</code> will
+      then use these two components to extract data from the entire page.
+      Once the user has given both of these parts to <code>jess</code>' <code>Action</code> class, as well as the page to be
+      scraped, it only takes a single method call for <code>jess</code> to have the page scraped and in key value form.
+    </p>
+  </div>
+  <div class="section">
+    <h1>The Configuration</h1>
+    <p>
+      The configuration file is the place where you
+      tell jess how it is you would like to create keys and values from your page(s).
+      Now, since the advent of CSS more and more web pages are structured, in meaningful ways,
+      around the hooks CSS uses to style them. The reason for this is clear, documents present
+      structure in their content in a visual manner and therefore the hooks that CSS uses
+      correlate strongly to the structure of the document. Therefore they are a great place
+      upon which to hinge the scraping of a web page. As such the configuration file is composed
+      of a set of CSS selector and declaration blocks of the form:
+    </p>
+    <p class="code">
+      <code>
+        selector {</br>
+        &nbsp;rule1;</br>
+        &nbsp;rule2;</br>
+        }
+      </code>
+    </p>
+    <p>
+      The selector is simply a CSS selector which will identify tags on an html page. To learn
+      more about them go <a href="http://www.w3schools.com/css/css_syntax.asp">here</a>.
+    </p>
+    <p>
+      The rules in each block have the following form:
+    </p>
+    <p class="code">
+      <code>
+        type: how;
+      </code>
+    </p>
+    <h3>The Type Portion</h3>
+    <p>
+      The type is either key or val, and the how is a what identifies
+      the way in which we wish to generate the corresponding
+      key or value. For each CSS block we must have exactly one rule with the type key
+      and can optionally have at most one rule with a val type.
+      What these blocks represent is how to create the key and (optionally) value for
+      any html tag that satisfies the selector at the beginning of the block. For any tag
+      satisfying that selector these are the functions that will create the key and
+      (optionally) value for that tag.
+    </p>
+    <h3>The 'How' Portion</h3>
+    <p>
+      Concerning the 'how' portion of each of the rules, it breaks into two types:
+      a function reference, or a tag reference.
+    </p>
+    <h4>The Function Reference</h4>
+    <p>
+      A function reference is simply a string (no spaces and not starting with the string 'get')
+      that identifies a function in you yourself have written. We will return to this later. Suffice it
+      to say that the function we are referencing will be used on each of the tags
+      the selector of our block identifies to create the corresponding key or value.
+    </p>
+    <h4>The Tag Reference</h4>
+    <p>
+      The other option is a tag reference. These can only be used for rules of the key type. It has the following
+      form:
+    </p>
+    <p class="code">
+      <code>
+        get(selector[direction])
+      </code>
+    </p>
+    <p>
+      selector here is a css selector (for which there must be a block already in
+      your code) and [direction] is one of ^, <, >. What this 'how' indicates is that <code>jess</code>
+      should start at the current
+      tag found by this block's selector, look
+      for the first tag satisfying the selector in the direction specified by [direction],
+      get its key, and assign that key to the current tag. The directions specified by ^, <,
+      and > are up, left, and right respectively. Up means look at the current tag's parent and
+      siblings, then at its grandparent and its siblings, and so forth and so on. Left means look
+      for the current tag's siblings moving up the html page, and right means look for the current
+      tag's siblings moving down the html page. All
+      of this is extremely useful if you want to do something like make the content of
+      a paragraph a value and set its key to be the text of the previous header tag.
+    </p>
+    <p>
+      As a final note on the use of this feature, <code>jess</code> will go through your css blocks in order.
+      Therefore, if you ask to use a key for a tag which only satisfies a selector which
+      is further down on your list of css blocks than your current selector's block, jess
+      will throw an error. This is because the key for that tag hasn't actually been created
+      yet and so there is nothing to grab.
+    </p>
+  </div>
+  <div class="section">
+    <h1>The Extraction Functions</h1>
+    <h3>A Note</h3>
+    <p>
+      Before we can talk about the extraction functions, there is another thing
+      that needs to be pointed out.
+      <code>jess</code> does not work with html directly, rather it works with a BeautifulSoup soup object
+      generated from the html you want to scrape. (To read about how to create a
+      soup object go here.) Therefore when you eventually input your page, it
+      will be input as soup.
+    </p>
+    <h3>The Functions</h3>
+    <p>
+      Extraction functions then work on BeautifulSoup tags. As has been already mentioned,
+      these functions are how
+      you actually extract information from tags on your page(s). They
+      must take, as their only input, a beautiful soup tag. Within the function you can perform
+      whatever operations you want and should have it return some value (go here to
+      learn how to interact with BeautifulSoup tags). (Note that if the function
+      is going to return a value that will be used as a key that value
+      must be a type which can be a dictionary key). For each of these functions
+      you have to choose a name by which to reference the function in the configuration
+      file. Then, for each function you put it in a dictionary under the name
+      that you chose to reference the function by. This dictionary is what will be input
+      to <code>jess</code>. When <code>jess</code> is then run on your page, whenever it finds a tag whose
+      key or value is created by one of those referenced functions, it will grab the function
+      from the dictionary and call it on the tag, setting the output as the corresponding
+      key or value.
+    </p>
+  </div>
+  <div class="section">
+    <h1>The Action Class</h1>
+    <p>
+      The class that you will use to scrape pages is the <code>Action</code> class.
+      This class handles parsing the rules in the configuration file, grabbing html
+      tags from your page based off of the selectors in that configuration file, applying the
+      corresponding rules to generate keys and values (and keeping track of keys in case
+      another tag wants a previous tag's key), and placing these keys
+      and values in a dictionary. All it needs is the plan of action from you (i.e.
+      the configuration file) and the functions it will use to extract data (your
+      extraction functions).
+    </p>
+    <p>
+      As such, <code>Action</code>'s constructor takes as input the
+      address of the configuration file on your machine, and the dictionary of functions aforementioned.
+    </p>
+    <p>
+      Now, once you have an <code>Action</code> class initialized, scraping everything is quite simple.
+      To pass in the soup you are going to scrape, call the <code>SetVillain</code> method with your
+      soup as input. Then, call <code>Act</code> with no input to scrape the document. Finally call
+      <code>DumpVillain</code>
+      (also with no input) to retrieve a copy of the dictionary that your <code>Action</code> produced.
+      With that you are done.
+      (Remember, for each key in the dictionary that results, the value corresponding
+      to that key is actually the list of values assigned to that key during the scraping.)
+    </p>
+    <h3>Why the Weird Names?</h3>
+    <p>
+      Now, at this point, you are probably thinking, "what kind of method names are those?!".
+      Well here's the reason for them:
+    </p>
+    <p>
+      Scrapers are also known as Spiders, and I love Marvel Comics, so of course I decided
+      to name the first versions of this code SpiderWoman. But I thought this name was
+      a bit long, so I renamed it <code>jess</code> after Jessica Drew (who was SpiderWoman for a bit).
+      Then, I imagined each web scrape as a battle between SpiderWoman and a Villain (the
+      page to be scraped). The configuration was the plan of attack, and the
+      functions were her weapons. (you can set both manually on an already configured <code>Action</code>
+      instance using the <code>LoadPlan</code> and
+      <code>SetWeapons</code> methods). Then she would set her sights on the villain (thus <code>SetVillain</code>),
+      act out her plan of attack (thus <code>Act</code>), and finally, once she was done, dump the
+      villain (thus <code>DumpVillain</code>). So that's why the names are so strange.
+    </p>
+  </div>
+  <div class="section">
+    <h1>Recap</h1>
+    <p>
+      So, to scrape a page:
+    </p>
+    <p>
+      Create a configuration file to tell <code>jess</code> how it should generate keys and values
+      from the page made of css blocks of the form:
+    </p>
+    <p class="code">
+      <code>
+        selector {</br>
+        &nbsp;type: how;</br>
+        &nbsp;type: how;</br>
+        }
+      </code>
+    </p>
+    <p>
+      where you must have exactly one key rule, and at most one val rule.
+    </p>
+    <p>
+      Then, create the functions you have referenced in your configuration file, and
+      place them in a single dictionary where the key for each function is the name
+      you referenced it by in the configuration file.
+    </p>
+    <p>
+      Next, create a <code>jess.Action</code> instance with the first input being the address of
+      the configuration file you wrote, and the second being the dictionary
+      of functions.
+    </p>
+    <p>
+      Then, input the page (as soup) by calling <code>SetVillain(soup)</code> with your soup as input on
+      your Action instance, Scrape
+      with <code>Act()</code>, and, finally, retrieve your result with <code>DumpVillain()</code>.
+    </p>
+  </div>
+  <footer>
+    <p>Copyright &#9400; 2016 by Marcel Gietzmann-Sanders</p>
+  </footer>
+</body>
+</html>
