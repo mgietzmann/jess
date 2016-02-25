@@ -29,3 +29,4 @@ Open guide/guide.html in your favorite browser to get a more detailed look at je
 Dependencies
 
  * BeautifulSoup
+ * lxml
