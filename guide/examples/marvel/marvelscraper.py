@@ -50,13 +50,18 @@ def blocks(tag):
     else:
         return 7
 
+def firstchild(tag):
+    for child in tag.children:
+        # have to do this to actually make it a string
+        return str(child)
+
 
 def content(tag):
     # this simply returns the constant string 'Content'
     return 'Content'
 
 # here is our function dictionary
-weapons = {'bold': bold, 'unmarkedtext': unmarkedtext, 'text': text, 'blocks': blocks, 'content': content}
+weapons = {'firstchild' : firstchild, 'bold': bold, 'unmarkedtext': unmarkedtext, 'text': text, 'blocks': blocks, 'content': content}
 
 # here is our action
 action = Action('marvelscraper.css', weapons)

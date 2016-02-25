@@ -24,3 +24,12 @@ constant string 'Content' */
   key: content;
   val: text;
 }
+
+div.myLink {
+  key: firstchild;
+}
+
+div.myLink div.togCont {
+  key: get(div.myLink^);
+  val: text;
+}
