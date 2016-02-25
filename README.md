@@ -33,4 +33,4 @@ Dependencies
 
 Installation
 
-Download the folder and inside it run: python setup.py install
+Download the repository and inside it run: python setup.py install
