@@ -30,3 +30,7 @@ Dependencies
 
  * BeautifulSoup
  * lxml
+
+Installation
+
+Download the folder and inside it run: python setup.py install
